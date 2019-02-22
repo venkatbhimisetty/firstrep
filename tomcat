@@ -8,12 +8,13 @@ yum install java-1.8.0-openjdk
 yum install maven -y
 mkdir /opt/tomcat
 cd /opt/tomcat
-wget http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.30/bin/apache-tomcat-8.5.30.tar .
-tar -xvzf /apache-tomcat-8.5.30.tar .
+wget http://mirrors.estointernet.in/apache/tomcat/tomcat-8/v8.5.38/bin/apache-tomcat-8.5.38.tar.gz
+tar -xvzf apache-tomcat-8.5.38.tar.gz 
 sudo groupadd tomcat
 sudo useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat
 
 chgrp -R tomcat /opt/tomcat
+cd /opt/tomcat/apache-tomcat-8.5.38/
 chmod -R g+r conf
 chmod g+x conf
 chown -R tomcat webapps/ work/ temp/ logs/
@@ -21,47 +22,47 @@ chown -R tomcat webapps/ work/ temp/ logs/
 -----------------------------------------------------------------------------------------------
 vi /etc/systemd/system/tomcat.service
  # Systemd unit file for tomcat 
-2  [Unit] 
-3  Description=Apache Tomcat Web Application Container 
-4  After=syslog.target network.target 
-5  
+ [Unit] 
+  Description=Apache Tomcat Web Application Container 
+  After=syslog.target network.target 
+  
  
-6  [Service] 
-7  Type=forking 
-8  
+  [Service] 
+  Type=forking 
+  
  
-9   Environment=JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk 
-10  Environment=CATALINA_PID=/opt/tomcat/apache-tomcat-8.5.29/tmp/tomcat.pid 
-11  Environment=CATALINA_HOME=/opt/tomcat/apache-tomcat-8.5.29 
-12  Environment=CATALINA_BASE=/opt/tomcat/apache-tomcat-8.5.29 
-13  Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC' 
-14  Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom' 
-15  
+   Environment=JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 
+  Environment=CATALINA_PID=/opt/tomcat/apache-tomcat-8.5.38/tmp/tomcat.pid 
+  Environment=CATALINA_HOME=/opt/tomcat/apache-tomcat-8.5.38 
+  Environment=CATALINA_BASE=/opt/tomcat/apache-tomcat-8.5.38 
+  Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC' 
+  Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom' 
+  
  
-16  ExecStart=/opt/tomcat/apache-tomcat-8.5.29/bin/startup.sh 
-17  ExecStop=/bin/kill -15 $MAINPID 
-18  
+  ExecStart=/opt/tomcat/apache-tomcat-8.5.38/bin/startup.sh 
+  ExecStop=/bin/kill -15 $MAINPID 
+  
  
-19  User=tomcat 
-20  Group=tomcat 
-21  #UMask=0007 
-22  #RestartSec=10 
-23  Restart=always 
-24  
+  User=tomcat 
+  Group=tomcat 
+  #UMask=0007 
+  #RestartSec=10 
+  Restart=always 
+  
  
-25  [Install] 
-26  WantedBy=multi-user.target 
+  [Install] 
+  WantedBy=multi-user.target 
 
 --------------------------------------------------------------------------------------------------
 
-vi /opt/tomcat/apache-tomcat-8.5.30/conf/tomcat-users.xml
+vi /opt/tomcat/apache-tomcat-8.5.38/conf/tomcat-users.xml 
 
  <role rolename="manager-gui"/>
  <user username="tomcat" password="tomcat" roles="manager-gui,manager-script"/>
 -------------------------------------------------------------------------------------------------
 
 
-vi /opt/tomcat/apache-tomcat-8.5.30.tar.gz/webapps/manager/META-INF/context.xml
+vi /opt/tomcat/apache-tomcat-8.5.38/webapps/manager/META-INF/context.xml 
  
   <?xml version="1.0" encoding="UTF-8"?> 
   <!-- 
