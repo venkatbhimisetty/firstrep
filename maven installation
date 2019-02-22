@@ -1,0 +1,22 @@
+MAVEN INSTALLATION on ubuntu
+
+------------java installation
+apt-get install default-jre
+
+cd /usr/local
+wget http://www-eu.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
+
+
+sudo tar xzf apache-maven-3.5.4-bin.tar.gz
+sudo ln -s apache-maven-3.5.4 apache-mave
+
+--------  open below path and paste java_home
+sudo vi /etc/profile.d/apache-maven.sh
+-----------------------------------------------------------
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+export M2_HOME=/usr/local/apache-maven-3.5.4
+export MAVEN_HOME=/usr/local/apache-maven-3.5.4
+export PATH=${M2_HOME}/bin:${PATH}
+------------------------------------------------------------
+source /etc/profile.d/apache-maven.sh
+mvn -version
