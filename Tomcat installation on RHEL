@@ -1,0 +1,137 @@
+				INSTALLING TOMCAT ON RHEL
+	Update the system by using below command
+sudo yum update
+	Create Group
+For security purposes, Tomcat should be run as an unprivileged user (i.e. not root). Create a new user and group that will run the Tomcat service.
+First, create a new tomcat group:
+	
+	sudo groupadd tomcat
+
+	Create User
+Then create a new tomcat user. This user is member of the tomcat group, with a home directory of /opt/tomcat (where we will install Tomcat), and with a shell of /bin/false (so nobody can log into the account):
+	sudo useradd -M -s /bin/nologin -g tomcat -d /opt/tomcat tomcat
+
+	Install the JAVA
+yum install java-1.8* -y
+	Set the JAVA HOME PATH
+
+##### JAVA HOME PATH#####
+vi .bashrc
+export JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-1.el8_0.x86_64/jre "
+export PATH=$PATH:$JAVA_HOME/bin
+
+. ~/.bashrc
+##################################
+	Install the tomcat8 on RHEL
+sudo yum install wget -y
+mkdir /opt/tomcat
+cd /opt/tomcat
+wget http://mirrors.estointernet.in/apache/tomcat/tomcat-8/v8.5.41/bin/apache-tomcat-8.5.41.tar.gz
+tar -xvzf apache-tomcat-8.5.41.tar.gz
+
+
+	Update Permissions
+Cd /opt/tomcat/apache-tomcat-8.5.41
+	sudo chgrp -R tomcat conf
+	sudo chmod g+rwx conf
+	sudo chmod g+r conf/*
+
+Make the tomcat user the owner of the webapps, work, temp, and logs directories.
+sudo chown -R tomcat webapps/ work/ temp/ logs/
+cd apache-tomcat-8.5.41/bin
+./startup.sh
+	We should allow 8080 port in Security Group, before check the tomcat Server
+
+	Changing default port 8080 to 8090
+
+cd /apache-tomcat-8.5.41/conf
+vi server.xml
+
+here change port no as 8090 like below snap
+
+ 
+Again shutdown the server and restart the Server
+
+Cd /opt/tomcat/apache-tomcat-8.5.41/bin
+./shutdown.sh
+./startup.sh
+
+	Run tomcat as a service
+sudo vi /etc/systemd/system/tomcat.service
+####################################################
+# Systemd unit file for tomcat 
+ [Unit] 
+  Description=Apache Tomcat Web Application Container 
+  After=syslog.target network.target 
+  
+ 
+  [Service] 
+  Type=forking 
+  
+ 
+  Environment=JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-1.el8_0.x86_64/jre
+  Environment=CATALINA_PID=/opt/tomcat/apache-tomcat-8.5.41/tmp/tomcat.pid 
+  Environment=CATALINA_HOME=/opt/tomcat/apache-tomcat-8.5.41
+  Environment=CATALINA_BASE=/opt/tomcat/apache-tomcat-8.5.41
+  Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC' 
+  Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom' 
+  
+ 
+  ExecStart=/opt/tomcat/apache-tomcat-8.5.38/bin/startup.sh 
+  ExecStop=/bin/kill -15 $MAINPID 
+  
+ 
+  User=tomcat 
+  Group=tomcat 
+  #UMask=0007 
+  #RestartSec=10 
+  Restart=always 
+  
+ 
+  [Install] 
+  WantedBy=multi-user.target
+
+##############################################################
+	Changing the permissions like below
+vi /opt/tomcat/apache-tomcat-8.5.41/webapps/host-manager/META-INF/context.xml
+vi /opt/tomcat/apache-tomcat-8.5.41/webapps/manager/META-INF/context.xml
+
+Just put  “.*” or uncommit with   <!--     -->
+
+ 
+
+	Adding users
+vi /opt/tomcat/apache-tomcat-8.5.41/conf/tomcat-users.xml
+
+<role rolename="manager-gui"/>
+<role rolename="manager-script"/>
+<role rolename="manager-jmx"/>
+<role rolename="manager-status"/>
+<user username="admin" password="admin" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
+<user username="deployer" password="deployer" roles=",manager-script"/>
+<user username="tomcat" password="tomcat" roles="manager-gui,manager-script"/>
+
+ 
+
+Cd /opt/tomcat/apache-tomcat-8.5.41/bin
+./startup.sh
+	Adding soft link to ./startup.sh and ./shutdown.sh
+1.	Check the current path
+echo $PATH
+Output:
+ /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-1.el8_0.x86_64/jre/bin
+
+ln -s /opt/tomcat/apache-tomcat-8.5.41/bin/startup.sh /usr/local/bin/tomcatup
+ln -s /opt/tomcat/apache-tomcat-8.5.41/bin/shutdown.sh /usr/local/bin/tomcatdown
+
+now we can start tomcat from anywhere in system tomcatup
+as same we can shutdown tomcat by using tomcatdown
+
+optional :
+if you want open Host Manager
+Add role as a  “admin-gui” in below path
+vi /opt/tomcat/apache-tomcat-8.5.41/conf/tomcat-users.xml  
+<role rolename="admin-gui"/>
+<user username="tomcat" password="s3cret" roles="admin-gui"/>
+	Command for check tomcat server status
+ 	ps -ef |grep tomcat
